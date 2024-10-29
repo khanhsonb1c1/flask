@@ -2,7 +2,7 @@ from flask import Flask, render_template
 
 from auth.routes import auth_bp
 from config import connection_string, check_db_connection
-from extensions import db  # Nhập db từ extensions.py
+from extensions import db
 
 app = Flask(__name__)
 

@@ -1,4 +1,4 @@
-from flask import render_template, flash, redirect, url_for, Blueprint
+from flask import render_template, flash, redirect, url_for, Blueprint, request
 from werkzeug.security import generate_password_hash
 from extensions import db
 from auth.models import User
@@ -14,28 +14,25 @@ def login():
 
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
-    # form = RegistrationForm()
-    # if form.validate_on_submit():
-    #     email = form.email.data
-    #     password = form.password.data
-    #     role_id = form.role_id.data
-    #
-    #     # Kiểm tra email đã tồn tại chưa
-    #     if User.query.filter_by(email=email).first():
-    #         flash('Email đã được sử dụng. Vui lòng chọn email khác.', 'danger')
-    #         return redirect(url_for('auth.register'))
-    #
-    #     # Tạo user_id mới
-    #     user_id = generate_user_id()  # Cần định nghĩa hàm này
-    #
-    #     # Băm mật khẩu
-    #     hashed_password = generate_password_hash(password)
-    #
-    #     # Tạo người dùng mới
-    #     new_user = User(user_id=user_id, email=email, password=hashed_password, role_id=role_id)
-    #     db.session.add(new_user)
-    #     db.session.commit()
-    #     flash('Đăng ký thành công!', 'success')
-    #     return redirect(url_for('auth.login'))  # Redirect đến trang đăng nhập
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
 
-    return render_template('register.html', form=form)
+        # Kiểm tra xem email đã tồn tại chưa
+        existing_user = User.query.filter_by(email=email).first()
+        if existing_user:
+            return render_template('register.html', error="Email already exists.")
+
+        # Tạo mã băm cho mật khẩu và tạo user_id duy nhất
+        hashed_password = generate_password_hash(password)
+        user_id = generate_user_id()  # Giả sử hàm này tạo user_id với cú pháp UID-001, UID-002,...
+
+        # Tạo đối tượng User mới và thêm vào cơ sở dữ liệu
+        new_user = User(user_id=user_id, email=email, password=hashed_password)
+        db.session.add(new_user)
+        db.session.commit()
+
+        flash("Registration successful!")
+        return redirect(url_for('auth.login'))
+
+    return render_template('register.html')

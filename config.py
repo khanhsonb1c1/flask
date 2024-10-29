@@ -25,6 +25,6 @@ def check_db_connection():
         # Tạo kết nối đến cơ sở dữ liệu
         connection = engine.connect()
         print("Connect SQL Server successfully!")
-        connection.close()
+        # connection.close()
     except OperationalError as e:
         print(f"Connect SQL Server failed: {e}")
